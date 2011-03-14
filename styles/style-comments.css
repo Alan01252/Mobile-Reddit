@@ -70,6 +70,22 @@
 #comments .footerReply
 {
 	  background: url(../images/comment_footer2_reply.gif) no-repeat;
-	  text-align:left;
-	  
+	  text-align:left;	  
+}
+
+<!-- Jquery overrides -->
+.ui-btn-inner {
+    white-space: normal;
+}
+
+.ui-li .ui-btn-text {
+    white-space: normal;
+}
+
+.ui-li-heading {
+    white-space: normal;
+}
+
+strong{
+	padding:5px;
 }

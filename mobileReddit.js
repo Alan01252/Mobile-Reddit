@@ -1,6 +1,6 @@
 var globals = {
 	REDDIT_URI:'http://www.reddit.com/'
-	,PAGE_READER:'http://boilerpipe-web.appspot.com/extract?'
+	,PAGE_READER:'pageReader.php'
 };
 
 function aRedditStory(){
@@ -12,6 +12,8 @@ function aRedditStory(){
 	this.num_comments = null;
 	this.permalink = null;
 	this.selftext = null;
+	this.author = null;
+	this.domain = null;
 };
 
 var redditFrontPageReader = {
@@ -45,14 +47,23 @@ var redditFrontPageReader = {
 			rs.num_comments = redditData.data.children[i].data.num_comments;
 			rs.permalink = redditData.data.children[i].data.permalink;
 			rs.selftext = redditData.data.children[i].data.selftext;
+			rs.author = redditData.data.children[i].data.author;
+			rs.domain = redditData.data.children[i].data.domain;
+			
 			_redditFrontPageReader._redditStories.push(rs);
 			urlParts = rs.url.split(".");
+			
+			metaHtml = '<p class="ui-li-desc"><strong>Author:</strong>'+rs.author+'';
+			metaHtml +=	'<strong> Ups:</strong>'+rs.ups+'';
+			metaHtml +=	'<strong>Domain:</strong>'+rs.domain+'</p>';
+			metaHtml +=	'<p class="ui-li-count">'+rs.num_comments+'</p></li>';
+			
 			switch(urlParts[urlParts.length-1]){
 				case "png":
 				case "gif":
 				case "jpg":
 					$('<li>',{
-								html:'<a href="#imagePage">'+rs.title+'</a><p class="ui-li-count">'+rs.num_comments+'</p></li>',
+								html:'<h3 class="ui-li-heading"><a class="ui-link-inherit" href="#imagePage">'+rs.title+'</a></h3>'+metaHtml,
 								data:rs,
 								click:function(){
 									_redditFrontPageReader.selectedRedditStory = $(this).data();
@@ -63,7 +74,7 @@ var redditFrontPageReader = {
 					break;
 				default:
 					$('<li>',{
-							html:'<a href="#documentPage">'+rs.title+'</a><p class="ui-li-count">'+rs.num_comments+'</p></li>',
+							html:'<h3 class="ui-li-heading"><a class="ui-link-inherit" href="#documentPage">'+rs.title+'</a></h3>'+metaHtml,
 							data:rs,
 							click:function(){
 								_redditFrontPageReader.selectedRedditStory = $(this).data();
@@ -80,15 +91,15 @@ var redditFrontPageReader = {
 	
 	readStory:function(){
 		$.mobile.pageLoading();
+		$("#pageDocument").html("");
 		var urlToRead = _redditFrontPageReader.selectedRedditStory.url;
 		if(_redditFrontPageReader.selectedRedditStory.selftext.length > 0){
 			urlToRead = urlToRead+".json";
 			$.ajax({type:"post",dataType:"jsonp",url:urlToRead,jsonp:'jsonp',success:this.displaySelfPost});
 		}
 		else{
-			var url = globals.PAGE_READER+"&url="+encodeURIComponent(_redditFrontPageReader.selectedRedditStory.url);
-			
-			$.ajax({type:"get",dataType:"html",url:globals.PAGE_READER,data:readPage,success:this.displayStory});
+			var readPage = "method=readability&redditid="+_redditFrontPageReader.selectedRedditStory.redditid+"&uri="+encodeURIComponent(_redditFrontPageReader.selectedRedditStory.url);
+			$.ajax({type:"post",dataType:"html",url:globals.PAGE_READER,data:readPage,success:this.displayStory});
 		}
 	},
 	
