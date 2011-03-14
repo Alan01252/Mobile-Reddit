@@ -1,6 +1,6 @@
 var globals = {
 	REDDIT_URI:'http://www.reddit.com/'
-	,PAGE_READER:'pageReader.php'
+	,PAGE_READER:'http://boilerpipe-web.appspot.com/extract?'
 };
 
 function aRedditStory(){
@@ -11,6 +11,7 @@ function aRedditStory(){
 	this.ups = null;
 	this.num_comments = null;
 	this.permalink = null;
+	this.selftext = null;
 };
 
 var redditFrontPageReader = {
@@ -43,6 +44,7 @@ var redditFrontPageReader = {
 			rs.ups = redditData.data.children[i].data.ups;
 			rs.num_comments = redditData.data.children[i].data.num_comments;
 			rs.permalink = redditData.data.children[i].data.permalink;
+			rs.selftext = redditData.data.children[i].data.selftext;
 			_redditFrontPageReader._redditStories.push(rs);
 			urlParts = rs.url.split(".");
 			switch(urlParts[urlParts.length-1]){
@@ -79,14 +81,14 @@ var redditFrontPageReader = {
 	readStory:function(){
 		$.mobile.pageLoading();
 		var urlToRead = _redditFrontPageReader.selectedRedditStory.url;
-		if(_redditFrontPageReader.selectedRedditStory.url.indexOf("http://www.reddit.com/comments/") != -1){
+		if(_redditFrontPageReader.selectedRedditStory.selftext.length > 0){
 			urlToRead = urlToRead+".json";
 			$.ajax({type:"post",dataType:"jsonp",url:urlToRead,jsonp:'jsonp',success:this.displaySelfPost});
 		}
 		else{
-			var readPage = "method=readability&redditid="+_redditFrontPageReader.selectedRedditStory.redditid+"&uri="+encodeURIComponent(_redditFrontPageReader.selectedRedditStory.url);
+			var url = globals.PAGE_READER+"&url="+encodeURIComponent(_redditFrontPageReader.selectedRedditStory.url);
 			
-			$.ajax({type:"post",dataType:"html",url:globals.PAGE_READER,data:readPage,success:this.displayStory});
+			$.ajax({type:"get",dataType:"html",url:globals.PAGE_READER,data:readPage,success:this.displayStory});
 		}
 	},
 	
@@ -154,7 +156,7 @@ function aRedditStoriesComment(){
 
 var redditStoryCommentReader = {
 	_redditComments:[],
-	
+	previousPermalink:null,
 	read:function(){
 		_redditStoryCommentReader = this;
 		_redditStoryCommentReader._redditComments = [];
@@ -253,6 +255,7 @@ NAMESPACE.Pages.commentPage = function(){
 	var pageContext = this;
 	redditStoryCommentReader.read();
 };
+
 
 
 
