@@ -149,9 +149,17 @@ function aRedditStoriesComment(){
 		if(overrideAppendTo){
 			appendTo = overrideAppendTo;
 		}
+		//Makes a new comment
 		$("#aRedditStoriesComment").clone(true).attr('id',"aRedditStoriesComment"+this.name).data("aRedditStoriesComment",this).insertAfter(appendTo).show();
 		$("#aRedditStoriesComment"+this.name+" .comment").html(this.body);
 		$("#aRedditStoriesComment"+this.name+" .commentFooter").html(this.author);
+		if(this.children[0] && this.children[0].body){ //sometimes the name is there but no body. Probably a load more comments situation
+			$("#aRedditStoriesComment"+this.name+"").addClass("hand");
+		}else{
+			$("#aRedditStoriesComment"+this.name+"").removeClass("hand");
+		}
+		
+		//Make the sub child noticable from the parent
 		if(this.parent){
 			if(this.parent.cssClass !== "reply"){
 				$("#aRedditStoriesComment"+this.name+"").removeClass("ui-body-c").addClass("ui-body-d reply");
@@ -159,6 +167,11 @@ function aRedditStoriesComment(){
 			}else{
 				this.cssClass = "";
 			}
+			//Grabs the parents margin and adds 10px to the childrens.
+			var parentsMargin = parseInt($("#aRedditStoriesComment"+this.parent.name).css('margin-left'), 10);
+			$("#aRedditStoriesComment"+this.name+"").css('margin-left', function (index, curValue) {
+			    return parentsMargin + 10 + 'px';
+			});
 		}
 	};
 	
