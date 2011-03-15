@@ -116,9 +116,14 @@ var redditFrontPageReader = {
 	},
 	
 	displaySelfPost:function(redditData){
+		
 		var selfPostText = redditData[0].data.children[0].data.selftext;
 		$("#pageDocument").html(selfPostText);
 		$.mobile.pageLoading(true);
+		//The comments are in the request for the self text. Populate them here to save time/bandwidth later.
+		_redditStoryCommentReader = redditStoryCommentReader;
+		_redditStoryCommentReader._redditComments = []; //blank out the comments in case we've clicked on two self reddits in a row.
+		_redditStoryCommentReader.populateRedditComments(redditData);
 	}
 };
 
@@ -163,24 +168,38 @@ function aRedditStoriesComment(){
 			this.children[i].display("#aRedditStoriesComment"+this.name);
 		}
 	};
+	
+	this.reset = function(){
+		this.cssClass= "";
+		this.isVisible = false;
+		for(var i=0;i < this.children.length; i++){
+			this.children[i].reset();
+		}
+	};
 };
 
 var redditStoryCommentReader = {
 	_redditComments:[],
-	previousPermalink:null,
 	read:function(){
-		_redditStoryCommentReader = this;
-		_redditStoryCommentReader._redditComments = [];
+		//Create a base comment to clone later
 		$(".aRedditStoriesComment").remove();
-		
 		$('<div id="aRedditStoriesComment" class="aRedditStoriesComment"><div class="comment"><p>&nbsp;</p></div><div class="commentFooter"><p>&nbsp;</p></div></div>')
 			.appendTo('#comments')
 			.click(function(){
 				var aRSC = $(this).data("aRedditStoriesComment");
 				aRSC.displayChildren();
 			})
-			.hide();
-			
+			.hide();	
+	
+		//Comments have already been populated when the self story was read.
+		if(redditFrontPageReader.selectedRedditStory.selftext.length > 0 ){
+			this.resetComments();
+			this.displayComments();
+			return;
+		}
+		_redditStoryCommentReader = this;
+		_redditStoryCommentReader._redditComments = [];
+		
 		$.mobile.pageLoading();
 		var callBacks = [this.populateRedditComments];
 		var readPage = globals.REDDIT_URI+redditFrontPageReader.selectedRedditStory.permalink;
@@ -221,6 +240,12 @@ var redditStoryCommentReader = {
 			_redditStoryCommentReader._redditComments[i].display();
 		}
 		$.mobile.pageLoading(true);
+	},
+	
+	resetComments:function(){
+		for(var i= this._redditComments.length-1 ; i >= 0; i--){
+			this._redditComments[i].reset();
+		}
 	}
 };
 
