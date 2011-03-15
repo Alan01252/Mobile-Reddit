@@ -54,9 +54,9 @@ var redditFrontPageReader = {
 			urlParts = rs.url.split(".");
 			
 			metaHtml = '<p class="ui-li-desc"><strong>Author:</strong>'+rs.author+'';
-			metaHtml +=	'<strong> Ups:</strong>'+rs.ups+'';
+			metaHtml +=	'<strong> Ups:</strong>'+rs.ups;
+			metaHtml +=	'<strong>Comments:</strong>'+rs.num_comments;
 			metaHtml +=	'<strong>Domain:</strong>'+rs.domain+'</p>';
-			metaHtml +=	'<p class="ui-li-count">'+rs.num_comments+'</p></li>';
 			
 			switch(urlParts[urlParts.length-1]){
 				case "png":
@@ -111,14 +111,14 @@ var redditFrontPageReader = {
 	},
 	
 	displayStory:function(storyData){
-		$("#pageDocument").html(storyData);
+		$("#documentContents").html(storyData);
 		$.mobile.pageLoading(true);
 	},
 	
 	displaySelfPost:function(redditData){
 		
 		var selfPostText = redditData[0].data.children[0].data.selftext;
-		$("#pageDocument").html(selfPostText);
+		$("#documentContents").html(selfPostText);
 		$.mobile.pageLoading(true);
 		//The comments are in the request for the self text. Populate them here to save time/bandwidth later.
 		_redditStoryCommentReader = redditStoryCommentReader;
@@ -150,12 +150,11 @@ function aRedditStoriesComment(){
 			appendTo = overrideAppendTo;
 		}
 		$("#aRedditStoriesComment").clone(true).attr('id',"aRedditStoriesComment"+this.name).data("aRedditStoriesComment",this).insertAfter(appendTo).show();
-		$("#aRedditStoriesComment"+this.name+" .comment p").html(this.body);
-		$("#aRedditStoriesComment"+this.name+" .commentFooter p").html(this.author);
+		$("#aRedditStoriesComment"+this.name+" .comment").html(this.body);
+		$("#aRedditStoriesComment"+this.name+" .commentFooter").html(this.author);
 		if(this.parent){
 			if(this.parent.cssClass !== "reply"){
-				$("#aRedditStoriesComment"+this.name+" .comment").addClass("reply");
-				$("#aRedditStoriesComment"+this.name+" .commentFooter").addClass("footerReply");
+				$("#aRedditStoriesComment"+this.name+"").removeClass("ui-body-c").addClass("ui-body-d reply");
 				this.cssClass = "reply";
 			}else{
 				this.cssClass = "";
@@ -183,7 +182,7 @@ var redditStoryCommentReader = {
 	read:function(){
 		//Create a base comment to clone later
 		$(".aRedditStoriesComment").remove();
-		$('<div id="aRedditStoriesComment" class="aRedditStoriesComment"><div class="comment"><p>&nbsp;</p></div><div class="commentFooter"><p>&nbsp;</p></div></div>')
+		$('<div id="aRedditStoriesComment" class="aRedditStoriesComment ui-body ui-body-c"><div class="comment"><p class="comment">&nbsp;</p></div><div><em class="commentFooter">&nbsp;</em></div></div>')
 			.appendTo('#comments')
 			.click(function(){
 				var aRSC = $(this).data("aRedditStoriesComment");

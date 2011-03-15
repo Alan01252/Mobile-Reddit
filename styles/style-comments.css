@@ -1,12 +1,7 @@
-#comments h3{background:none;border:none;color:#336;font-family:Verdana;font-size:11px;font-weight:bold;margin:0;}
-#comments p{font-family:Verdana;font-size:11px;font-weight:bold;color:#666;margin:4px 0 10px 0;}
-#comments .comment{background:#F3F3C1 url(../images/comment_grad.gif) repeat-x;margin:0;padding:10px;border:1px #999966 solid;border-bottom:none;font-weight:normal;font-family:Tahoma;font-size:14px;width:458px;cursor:pointer;cursor:hand;}
-#comments .comment p{margin:0 0 4px 0;padding:0;color:#000;font-weight:normal;}
-#comments .reply{background:#D3FFFA url(../images/comment_grad_reply.gif) repeat-x;}
-#comments .commentFooter{background:url(../images/comment_footer2.gif) no-repeat;margin:-15px 0 20px 0;text-align:right;}
-#comments .commentFooter p{font-family:Verdana;font-size:11px;font-weight:normal;color:#000;margin:15px 0 0 5px;padding:10px 0 0 5px;line-height:200%;width:500px;}
-#comments .footerReply{background:url(../images/comment_footer2_reply.gif) no-repeat;text-align:left;}
 <!-- Jquery overrides --> .ui-btn-inner{white-space:normal;}
 .ui-li .ui-btn-text{white-space:normal;}
 .ui-li-heading{white-space:normal;}
 strong{padding:5px;}
+p{padding:0px;}
+.commentFooter{float:right;}
+.reply{margin-left:10px;}
