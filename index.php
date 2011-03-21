@@ -30,7 +30,7 @@
 		</ul>
 	</div>
 	<div data-role=footer>
-		<h4>Page Footer</h4>
+		<h4></h4>
 	</div>
 </div>
 
@@ -43,7 +43,7 @@
 <img id=pageImage src=""></img>
 </div>
 <div data-role=footer>
-<h4>Page Footer</h4>
+<h4></h4>
 </div>
 </div>
 
@@ -54,7 +54,7 @@
 <div data-role=content>
 </div>
 <div data-role=footer>
-<h4>Page Footer</h4>
+<h4></h4>
 </div>
 </div>
 
@@ -64,7 +64,7 @@
 <a href="#commentPage" data-icon=arrow-r class=ui-btn-right>Comments</a>
 </div>
 <div id=pageDocument" data-role=content>
-	<div id="documentContents" class="ui-body ui-body-b">
+	<div id="documentContents" class="ui-body ui-body-d">
 	</div>
 </div>
 <div data-role=footer>
@@ -79,7 +79,7 @@
 <div id=comments data-role=content class="ui-grid-c">
 </div>
 <div data-role=footer>
-<h4>Page Footer</h4>
+<h4></h4>
 </div>
 </div>
 </body>

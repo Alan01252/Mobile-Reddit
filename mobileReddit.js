@@ -152,7 +152,7 @@ function aRedditStoriesComment(){
 		//Makes a new comment
 		$("#aRedditStoriesComment").clone(true).attr('id',"aRedditStoriesComment"+this.name).data("aRedditStoriesComment",this).insertAfter(appendTo).show();
 		$("#aRedditStoriesComment"+this.name+" .comment").html(this.body);
-		$("#aRedditStoriesComment"+this.name+" .commentFooter").html(this.author);
+		$("#aRedditStoriesComment"+this.name+" .commentFooter").html("<strong>Author:</strong> "+this.author+" <strong>Children:</strong>"+this.children.length);
 		if(this.children[0] && this.children[0].body){ //sometimes the name is there but no body. Probably a load more comments situation
 			$("#aRedditStoriesComment"+this.name+"").addClass("hand");
 		}else{
@@ -162,7 +162,7 @@ function aRedditStoriesComment(){
 		//Make the sub child noticable from the parent
 		if(this.parent){
 			if(this.parent.cssClass !== "reply"){
-				$("#aRedditStoriesComment"+this.name+"").removeClass("ui-body-c").addClass("ui-body-d reply");
+				$("#aRedditStoriesComment"+this.name+"").removeClass("ui-body-d").addClass("ui-body-e reply");
 				this.cssClass = "reply";
 			}else{
 				this.cssClass = "";
@@ -195,7 +195,7 @@ var redditStoryCommentReader = {
 	read:function(){
 		//Create a base comment to clone later
 		$(".aRedditStoriesComment").remove();
-		$('<div id="aRedditStoriesComment" class="aRedditStoriesComment ui-body ui-body-c"><div class="comment"><p class="comment">&nbsp;</p></div><div><em class="commentFooter">&nbsp;</em></div></div>')
+		$('<div id="aRedditStoriesComment" class="aRedditStoriesComment ui-body ui-body-d"><div class="comment"><p class="comment">&nbsp;</p></div><div><p class="commentFooter">&nbsp;</p></div></div>')
 			.appendTo('#comments')
 			.click(function(){
 				var aRSC = $(this).data("aRedditStoriesComment");
