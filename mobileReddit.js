@@ -289,7 +289,6 @@ NAMESPACE.Pages.frontPage = function() {
 		$('#redditsNavBar li').click(function(e){
 			redditFrontPageReader.setSubReddit($(this).text());
 			redditFrontPageReader.read();
-			alert(2);
 		});
 	}
 };
