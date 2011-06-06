@@ -285,7 +285,6 @@ jQuery("div[data-role*='page']").live('pageshow', function(event, ui) {
 NAMESPACE.Pages.frontPage = function() {
 	var pageContext = this;
 	if(redditFrontPageReader._redditStories.length == 0){
-		alert(1);
 		redditFrontPageReader.read();
 		$('#redditsNavBar li').click(function(e){
 			redditFrontPageReader.setSubReddit($(this).text());
