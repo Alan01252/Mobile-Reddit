@@ -1,5 +1,5 @@
 var globals = {
-	REDDIT_URI:'http://www.reddit.com/'
+	REDDIT_URI:'http://www.reddit.com/' //must have trailing /
 	,PAGE_READER:'pageReader.php'
 };
 
@@ -27,13 +27,16 @@ var redditFrontPageReader = {
 		_redditFrontPageReader = this;
 		$('#stories li').remove();
 		$.mobile.pageLoading();
+		
 		var callBacks = [this.populateRedditStories];
 		var readPage = globals.REDDIT_URI;
 		if(this._subReddit.length > 0){
-			readPage += "/r/"+this._subReddit+"/";
+			readPage += "r/"+this._subReddit+"/";
 		}
+		
 		readPage +=".json";
-		$.ajax({type:"post",dataType:"jsonp",url:readPage,jsonp:'jsonp',success:callBacks});
+		$.ajax({context: _redditFrontPageReader,type:"post",dataType:"jsonp",url:readPage,jsonp:'jsonp',success:callBacks,error: function(msg,one,two) {
+            alert(msg+" "+one+" "+two);}});
 	},
 	
 	populateRedditStories:function(redditData){
@@ -51,9 +54,9 @@ var redditFrontPageReader = {
 			rs.domain = redditData.data.children[i].data.domain;
 			
 			_redditFrontPageReader._redditStories.push(rs);
-			urlParts = rs.url.split(".");
+			var urlParts = rs.url.split(".");
 			
-			metaHtml = '<p class="ui-li-desc"><strong>Author:</strong>'+rs.author+'';
+			var metaHtml = '<p class="ui-li-desc"><strong>Author:</strong>'+rs.author+'';
 			metaHtml +=	'<strong> Ups:</strong>'+rs.ups;
 			metaHtml +=	'<strong>Comments:</strong>'+rs.num_comments;
 			metaHtml +=	'<strong>Domain:</strong>'+rs.domain+'</p>';
@@ -107,7 +110,7 @@ var redditFrontPageReader = {
 		if(subRedditName == "Frontpage"){
 			subRedditName="";
 		}
-		_redditFrontPageReader._subReddit = subRedditName;
+		_redditFrontPageReader._subReddit = jQuery.trim(subRedditName);
 	},
 	
 	displayStory:function(storyData){
@@ -282,10 +285,12 @@ jQuery("div[data-role*='page']").live('pageshow', function(event, ui) {
 NAMESPACE.Pages.frontPage = function() {
 	var pageContext = this;
 	if(redditFrontPageReader._redditStories.length == 0){
+		alert(1);
 		redditFrontPageReader.read();
 		$('#redditsNavBar li').click(function(e){
 			redditFrontPageReader.setSubReddit($(this).text());
 			redditFrontPageReader.read();
+			alert(2);
 		});
 	}
 };
