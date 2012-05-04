@@ -7,7 +7,7 @@
 <head>
 <link rel=stylesheet href="./styles/style-comments.css"/>
 <link href="http://code.jquery.com/mobile/latest/jquery.mobile.min.css" rel="stylesheet" type="text/css" />
-<script src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
 <script src="http://code.jquery.com/mobile/latest/jquery.mobile.min.js"></script>
 <script src="./mobileReddit.js"></script>
 </head>

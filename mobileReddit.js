@@ -1,9 +1,12 @@
 var globals = {
 	REDDIT_URI:'http://www.reddit.com/' //must have trailing /
-	,PAGE_READER:'pageReader.php'
+	,PAGE_READER:'middleware/pageReader.php'
 };
 
-function aRedditStory(){
+/**
+ * Holds a reddit story.
+ */
+var aRedditStory = function aRedditStory(){
 	this.id = null;
 	this.redditid = null;
 	this.url = null;
@@ -16,6 +19,9 @@ function aRedditStory(){
 	this.domain = null;
 };
 
+/**
+ * Front page reader.
+ */
 var redditFrontPageReader = {
 	
 	selectedRedditStory:null,
@@ -23,10 +29,13 @@ var redditFrontPageReader = {
 	_redditStories:[],
 	_subReddit:"",
 	
+	/**
+	 * Ajax request for reddit json.
+	 */
 	read:function(){
 		_redditFrontPageReader = this;
 		$('#stories li').remove();
-		$.mobile.pageLoading();
+		$.mobile.showPageLoadingMsg();
 		
 		var callBacks = [this.populateRedditStories];
 		var readPage = globals.REDDIT_URI;
@@ -39,61 +48,74 @@ var redditFrontPageReader = {
             alert(msg+" "+one+" "+two);}});
 	},
 	
+	/**
+	 * Creates reddit objects and stores them in the reader.
+	 * @param redditData
+	 */
 	populateRedditStories:function(redditData){
 		for(var i=0;i < redditData.data.children.length; i++){
-			var rs = new aRedditStory;
-			rs.id = i;
-			rs.redditid = redditData.data.children[i].data.id;
-			rs.url = redditData.data.children[i].data.url;
-			rs.title = redditData.data.children[i].data.title;
-			rs.ups = redditData.data.children[i].data.ups;
-			rs.num_comments = redditData.data.children[i].data.num_comments;
-			rs.permalink = redditData.data.children[i].data.permalink;
-			rs.selftext = redditData.data.children[i].data.selftext;
-			rs.author = redditData.data.children[i].data.author;
-			rs.domain = redditData.data.children[i].data.domain;
 			
-			_redditFrontPageReader._redditStories.push(rs);
-			var urlParts = rs.url.split(".");
+			var redditStory = new aRedditStory;
+			redditStory.id = i;
+			redditStory.redditid = redditData.data.children[i].data.id;
+			redditStory.url = redditData.data.children[i].data.url;
+			redditStory.title = redditData.data.children[i].data.title;
+			redditStory.ups = redditData.data.children[i].data.ups;
+			redditStory.num_comments = redditData.data.children[i].data.num_comments;
+			redditStory.permalink = redditData.data.children[i].data.permalink;
+			redditStory.selftext = redditData.data.children[i].data.selftext;
+			redditStory.author = redditData.data.children[i].data.author;
+			redditStory.domain = redditData.data.children[i].data.domain;
 			
-			var metaHtml = '<p class="ui-li-desc"><strong>Author:</strong>'+rs.author+'';
-			metaHtml +=	'<strong> Ups:</strong>'+rs.ups;
-			metaHtml +=	'<strong>Comments:</strong>'+rs.num_comments;
-			metaHtml +=	'<strong>Domain:</strong>'+rs.domain+'</p>';
-			
-			switch(urlParts[urlParts.length-1]){
-				case "png":
-				case "gif":
-				case "jpg":
-					$('<li>',{
-								html:'<h3 class="ui-li-heading"><a class="ui-link-inherit" href="#imagePage">'+rs.title+'</a></h3>'+metaHtml,
-								data:rs,
-								click:function(){
-									_redditFrontPageReader.selectedRedditStory = $(this).data();
-									$("#pageImage").attr("src",_redditFrontPageReader.selectedRedditStory.url);
-								}
-							}
-					).appendTo("#stories");
-					break;
-				default:
-					$('<li>',{
-							html:'<h3 class="ui-li-heading"><a class="ui-link-inherit" href="#documentPage">'+rs.title+'</a></h3>'+metaHtml,
-							data:rs,
-							click:function(){
-								_redditFrontPageReader.selectedRedditStory = $(this).data();
-								_redditFrontPageReader.readStory();
-							}
-						}
-					).appendTo("#stories");
-					break;
-			}
+			_redditFrontPageReader._redditStories.push(redditStory);
+			_redditFrontPageReader.outputStory(redditStory);
 		}
-		$.mobile.pageLoading(true);
+		$.mobile.hidePageLoadingMsg();
 		$("#stories").listview("refresh");
 	},
-	
+	/**
+	 * Outputs the reddit story to the page.
+	 */
+	outputStory:function(redditStory){
+		var urlParts = redditStory.url.split(".");
+		
+		var metaHtml = '<p class="ui-li-desc"><strong>Author:</strong>'+redditStory.author+'';
+		metaHtml +=	'<strong> Ups:</strong>'+redditStory.ups;
+		metaHtml +=	'<strong>Comments:</strong>'+redditStory.num_comments;
+		metaHtml +=	'<strong>Domain:</strong>'+redditStory.domain+'</p>';
+		
+		switch(urlParts[urlParts.length-1]){
+			case "png":
+			case "gif":
+			case "jpg":
+				$('<li>',{
+							html:'<h3 class="ui-li-heading"><a class="ui-link-inherit" href="#imagePage">'+redditStory.title+'</a></h3>'+metaHtml,
+							data:redditStory,
+							click:function(){
+								_redditFrontPageReader.selectedRedditStory = $(this).data();
+								$("#pageImage").attr("src",_redditFrontPageReader.selectedRedditStory.url);
+							}
+						}
+				).appendTo("#stories");
+				break;
+			default:
+				$('<li>',{
+						html:'<h3 class="ui-li-heading"><a class="ui-link-inherit" href="#documentPage">'+redditStory.title+'</a></h3>'+metaHtml,
+						data:redditStory,
+						click:function(){
+							_redditFrontPageReader.selectedRedditStory = $(this).data();
+							_redditFrontPageReader.readStory();
+						}
+					}
+				).appendTo("#stories");
+				break;
+		}
+	},
+	/**
+	 * Grab the story. If it has self we'll just grab the json and display it outselves.
+	 */
 	readStory:function(){
-		$.mobile.pageLoading();
+		$.mobile.showPageLoadingMsg();
 		$("#pageDocument").html("");
 		var urlToRead = _redditFrontPageReader.selectedRedditStory.url;
 		if(_redditFrontPageReader.selectedRedditStory.selftext.length > 0){
@@ -105,32 +127,43 @@ var redditFrontPageReader = {
 			$.ajax({type:"post",dataType:"html",url:globals.PAGE_READER,data:readPage,success:this.displayStory});
 		}
 	},
-	
+	/**
+	 * Set this class to just read the front page of a particular subrebbit.
+	 * @param subRedditName
+	 */
 	setSubReddit:function(subRedditName){
 		if(subRedditName == "Frontpage"){
 			subRedditName="";
 		}
 		_redditFrontPageReader._subReddit = jQuery.trim(subRedditName);
 	},
-	
+	/**
+	 * Display the story.
+	 * @param storyData
+	 */
 	displayStory:function(storyData){
 		$("#documentContents").html(storyData);
-		$.mobile.pageLoading(true);
+		$.mobile.hidePageLoadingMsg();
 	},
-	
+	/**
+	 * Display a self post.
+	 * @param redditData
+	 */
 	displaySelfPost:function(redditData){
 		
 		var selfPostText = redditData[0].data.children[0].data.selftext;
 		$("#documentContents").html(selfPostText);
-		$.mobile.pageLoading(true);
+		$.mobile.hidePageLoadingMsg();
 		//The comments are in the request for the self text. Populate them here to save time/bandwidth later.
 		_redditStoryCommentReader = redditStoryCommentReader;
 		_redditStoryCommentReader._redditComments = []; //blank out the comments in case we've clicked on two self reddits in a row.
 		_redditStoryCommentReader.populateRedditComments(redditData);
 	}
 };
-
-function aRedditStoriesComment(){
+/**
+ * Comment node or holding a reddit story.
+ */
+var aRedditStoriesComment = function aRedditStoriesComment(){
 	this.name = null;
 	this.parent = null;
 	this.body = "";
@@ -139,7 +172,9 @@ function aRedditStoriesComment(){
 	
 	this.cssClass= "";
 	this.isVisible = false;
-	
+	/**
+	 * Output the comment to the page.
+	 */
 	this.display = function(overrideAppendTo){
 		if(this.isVisible){
 			return;
@@ -177,13 +212,17 @@ function aRedditStoriesComment(){
 			});
 		}
 	};
-	
+	/**
+	 * Displays this comments children
+	 */
 	this.displayChildren = function(){
 		for(var i=this.children.length-1;i >=0;i--){
 			this.children[i].display("#aRedditStoriesComment"+this.name);
 		}
 	};
-	
+	/**
+	 * Reset this comment.
+	 */
 	this.reset = function(){
 		this.cssClass= "";
 		this.isVisible = false;
@@ -192,10 +231,19 @@ function aRedditStoriesComment(){
 		}
 	};
 };
-
+/**
+ * Creates a linked list of reddit comments.
+ */
 var redditStoryCommentReader = {
 	_redditComments:[],
+	/**
+	 * Read the comments
+	 */
 	read:function(){
+		
+		_redditStoryCommentReader = this;
+		_redditStoryCommentReader._redditComments = [];
+		
 		//Create a base comment to clone later
 		$(".aRedditStoriesComment").remove();
 		$('<div id="aRedditStoriesComment" class="aRedditStoriesComment ui-body ui-body-d"><div class="comment"><p class="comment">&nbsp;</p></div><div><p class="commentFooter">&nbsp;</p></div></div>')
@@ -212,16 +260,17 @@ var redditStoryCommentReader = {
 			this.displayComments();
 			return;
 		}
-		_redditStoryCommentReader = this;
-		_redditStoryCommentReader._redditComments = [];
-		
-		$.mobile.pageLoading();
+		//Perform request
+		$.mobile.showPageLoadingMsg();
 		var callBacks = [this.populateRedditComments];
 		var readPage = globals.REDDIT_URI+redditFrontPageReader.selectedRedditStory.permalink;
 		readPage+=".json";
 		$.ajax({type:"post",dataType:"jsonp",url:readPage,data:readPage,jsonp:'jsonp',success:callBacks});
 	},
-	
+	/**
+	 * Store the comments
+	 * @param redditData
+	 */
 	populateRedditComments:function(redditData){
 		var aRedditStoriesComments = redditData[1].data.children;
 		for(var i=0;i < aRedditStoriesComments.length; i++){
@@ -234,7 +283,11 @@ var redditStoryCommentReader = {
 		}
 		_redditStoryCommentReader.displayComments();
 	},
-	
+	/**
+	 * Create the linked list.
+	 * @param parent
+	 * @param aRedditStoriesCommentJSONReplies
+	 */
 	populateChildren:function(parent,aRedditStoriesCommentJSONReplies){
 		if(!aRedditStoriesCommentJSONReplies){
 			return;
@@ -249,14 +302,18 @@ var redditStoryCommentReader = {
 			parent.children.push(rsc);
 		}
 	},
-	
+	/**
+	 * Output the comments to the page.
+	 */
 	displayComments:function(){
 		for(var i= _redditStoryCommentReader._redditComments.length-1 ; i >= 0; i--){
 			_redditStoryCommentReader._redditComments[i].display();
 		}
-		$.mobile.pageLoading(true);
+		$.mobile.hidePageLoadingMsg();
 	},
-	
+	/**
+	 * Clear all comments
+	 */
 	resetComments:function(){
 		for(var i= this._redditComments.length-1 ; i >= 0; i--){
 			this._redditComments[i].reset();
@@ -270,8 +327,6 @@ if (typeof NAMESPACE == 'undefined') NAMESPACE = {};
 if (typeof NAMESPACE.Pages == 'undefined') NAMESPACE.Pages = {};
 
 
-
-
 // Map pageshow event to dispatcher
 jQuery("div[data-role*='page']").live('pageshow', function(event, ui) {
         var thisId=$(this).attr("data-url");
@@ -281,7 +336,9 @@ jQuery("div[data-role*='page']").live('pageshow', function(event, ui) {
         }
 });
 
-// Create one of these per PAGEID
+/**
+ * Read the reddit front page. Establish a listener for click which will change the front page reader to read a subreddits front page.
+ */
 NAMESPACE.Pages.frontPage = function() {
 	var pageContext = this;
 	if(redditFrontPageReader._redditStories.length == 0){
@@ -293,6 +350,14 @@ NAMESPACE.Pages.frontPage = function() {
 	}
 };
 
+/**
+ * Read the comments.
+ */
+NAMESPACE.Pages.commentPage = function(){
+	var pageContext = this;
+	redditStoryCommentReader.read();
+};
+
 NAMESPACE.Pages.imagePage = function() {
 	var pageContext = this;
 
@@ -302,10 +367,7 @@ NAMESPACE.Pages.videoPage = function() {
 	var pageContext = this;
 };
 
-NAMESPACE.Pages.commentPage = function(){
-	var pageContext = this;
-	redditStoryCommentReader.read();
-};
+
 
 
 
